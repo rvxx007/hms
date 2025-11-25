@@ -4,8 +4,10 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "pnpm -r --parallel run dev",
-    "dev:server": "pnpm --filter server dev",
-    "dev:client": "pnpm --filter client dev",
-    "seed": "pnpm --filter server run seed"
+    "dev:server": "pnpm --filter server run dev",
+    "dev:client": "pnpm --filter client run dev",
+    "seed:admin": "pnpm --filter server run seed:admin",
+    "seed:doctor": "pnpm --filter server run seed:doctor",
+    "seed:medicine": "pnpm --filter server run seed:medicine"
   }
 }
