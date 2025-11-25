@@ -1,0 +1,104 @@
+.layoutWrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #f5f6fa;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding-top: 1rem;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1.5rem;
+}
+
+.logoIcon {
+  font-size: 32px;
+  color: #2563eb;
+}
+
+.logoText {
+  font-weight: 700;
+  color: #2563eb;
+}
+
+/* MENU */
+.menuList {
+  flex: 1;
+  padding-top: 1rem;
+}
+
+.menuItem {
+  text-decoration: none;
+  color: #374151;
+}
+
+.menuItemActive {
+  background: #eff6ff;
+  border-left: 4px solid #2563eb;
+}
+
+.menuIcon {
+  color: #2563eb;
+}
+
+/* LOGOUT */
+.logoutWrapper {
+  padding: 1.5rem;
+}
+
+/* MAIN SECTION */
+.mainSection {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* TOP BAR */
+.topBar {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.topBarInner {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.dashboardTitle {
+  font-weight: 700;
+  color: #374151;
+}
+
+/* CONTENT */
+.contentArea {
+  padding: 2rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .mainSection {
+    margin-left: 0;
+    width: 100%;
+  }
+}

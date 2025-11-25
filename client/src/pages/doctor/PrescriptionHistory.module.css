@@ -1,0 +1,54 @@
+.wrapper {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.heading {
+  font-weight: 700 !important;
+  color: #1e3a8a !important;
+}
+
+.loaderBox {
+  display: flex;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.noData {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.patientCard {
+  padding: 1.3rem;
+  border-left: 5px solid #2563eb;
+  border-radius: 10px !important;
+  transition: 0.2s ease-in-out;
+  background: #ffffff;
+}
+
+.patientCard:hover {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transform: translateY(-2px);
+}
+
+.patientName {
+  font-weight: 700 !important;
+  color: #111827;
+}
+
+.patientInfo {
+  margin-top: 0.4rem;
+  color: #374151;
+  font-size: 0.95rem;
+}
