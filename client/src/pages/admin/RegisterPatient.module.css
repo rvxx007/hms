@@ -1,0 +1,65 @@
+/* RegisterPatient.module.css */
+
+/* Page Layout */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* Header */
+.headerWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #047857;
+  font-weight: bold;
+}
+
+/* Card Styling */
+.card {
+  max-width: 860px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Grid Form */
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Error text below selects */
+.errorText {
+  color: #dc2626;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* Large field (address, complaint) */
+.fullWidth {
+  grid-column: span 1;
+}
+
+@media (min-width: 768px) {
+  .fullWidth {
+    grid-column: span 2;
+  }
+}
+
+/* Small loading indicator */
+.smallLoader {
+  margin-top: 8px;
+}
+
+/* Muted text */
+.muted {
+  color: #6b7280;
+}

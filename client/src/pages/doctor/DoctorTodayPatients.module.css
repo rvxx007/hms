@@ -1,0 +1,6 @@
+.wrapper { padding: 2rem; }
+.heading { font-weight: 700; color: #1d4ed8; }
+.list { display: flex; flex-direction: column; gap: 1rem; }
+.patientCard { padding: 1rem; border-left: 5px solid #2563eb; }
+.name { font-weight: bold; }
+.centerBox { display: flex; justify-content: center; padding: 2rem; }

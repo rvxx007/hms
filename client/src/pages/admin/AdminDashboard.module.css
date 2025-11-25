@@ -1,0 +1,85 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  padding: 1.5rem 1rem;
+}
+
+.pageTitle {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.loadingText {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+/* STAT CARDS */
+.statsGrid {
+  display: grid;
+  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.statCard {
+  background: #ffffff;
+  padding: 1.4rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+}
+
+.statLabel {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.statValue {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+  color: #111827;
+}
+
+.chardCardContainer{
+    display:  flex ;
+    gap: 1rem;
+    flex-direction: row;
+    justify-content: left;
+    align-items: center;
+}
+
+/* CHART SECTIONS */
+.chartCard {
+    width: calc(100% - 50px);
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+@media (max-width: 786px) {
+  .chardCardContainer {
+    flex-direction: column;
+  }
+}
+
+
+
+.chartTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+

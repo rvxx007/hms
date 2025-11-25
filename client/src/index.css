@@ -1,3 +1,11 @@
+/* src/index.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Your custom CSS goes below these lines */
+body {
+  margin: 0;
+  /* etc. */
+}

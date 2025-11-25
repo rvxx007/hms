@@ -1,33 +1,55 @@
 import { useEffect, useState } from "react";
-import api from "../../lib/api/axios.js"
-
+import api from "../../lib/api/axios";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
 } from "recharts";
 
+import {
+  ADMIN_CHART_DOCTOR_HOSPITAL_ENDPOINT,
+  ADMIN_CHART_MEDICINCES_TYPES_ENDPOINT,
+  ADMIN_CHART_PETIENTS_WEEK_API_ENDPOINT,
+  ADMIN_STATS_API_ENDPOINT,
+} from "../../lib/constants/apiRoute";
+
+import type {
+  CardData,
+  DoctorAndHospitalType,
+  medicinesType,
+  StatsData,
+} from "../../lib/interface/commonTypes";
+
+import { headers } from "../../lib/util/commonFun";
+
+import styles from "./AdminDashboard.module.css";
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState(null);
-  const [weekData, setWeekData] = useState([]);
-  const [dhData, setDhData] = useState(null);
-  const [medTypeData, setMedTypeData] = useState(null);
+  const [stats, setStats] = useState<StatsData>();
+  const [weekData, setWeekData] = useState<any[]>();
+  const [dhData, setDhData] = useState<DoctorAndHospitalType>();
+  const [medTypeData, setMedTypeData] = useState<medicinesType>();
 
   const COLORS = ["#2563eb", "#10b981", "#f97316"];
 
-  const headers = {
-    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-  };
-
   useEffect(() => {
-    api.get("/admin/stats", headers).then((r) => setStats(r.data));
-    api.get("/admin/chart/patients-week", headers).then((r) => setWeekData(r.data));
-    api.get("/admin/chart/doctor-hospital", headers).then((r) => setDhData(r.data));
-    api.get("/admin/chart/medicines-types", headers).then((r) => setMedTypeData(r.data));
+    api.get(ADMIN_STATS_API_ENDPOINT, headers).then((r) => setStats(r.data.data));
+    api.get(ADMIN_CHART_PETIENTS_WEEK_API_ENDPOINT, headers).then((r) => setWeekData(r.data.data));
+    api.get(ADMIN_CHART_DOCTOR_HOSPITAL_ENDPOINT, headers).then((r) => setDhData(r.data.data));
+    api.get(ADMIN_CHART_MEDICINCES_TYPES_ENDPOINT, headers).then((r) => setMedTypeData(r.data.data));
   }, []);
 
-  if (!stats) return <p>Loading...</p>;
+  if (!stats) return <p className={styles.loadingText}>Loading...</p>;
 
-  const cards = [
+  const cards: CardData[] = [
     { label: "Hospitals", value: stats.hospitals },
     { label: "Doctors", value: stats.doctors },
     { label: "Medicines", value: stats.medicines },
@@ -36,26 +58,20 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className={styles.wrapper}>
+      <h1 className={styles.pageTitle}>Admin Dashboard</h1>
 
-      {/* Stats Cards */}
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className={styles.statsGrid}>
         {cards.map((c, index) => (
-          <div
-            key={index}
-            className="bg-white p-6 rounded shadow text-center"
-          >
-            <div className="text-gray-500">{c.label}</div>
-            <div className="text-3xl font-bold">{c.value}</div>
+          <div key={index} className={styles.statCard}>
+            <div className={styles.statLabel}>{c.label}</div>
+            <div className={styles.statValue}>{c.value ?? "-"}</div>
           </div>
         ))}
       </div>
 
-      {/* Weekly Patients Chart */}
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">Patients (Last 7 Days)</h2>
+      <div className={styles.chartCard}>
+        <h2 className={styles.chartTitle}>Patients (Last 7 Days)</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={weekData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -67,11 +83,11 @@ export default function AdminDashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* Doctors vs Hospitals Pie Chart */}
-      {dhData && (
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Doctors vs Hospitals</h2>
+      <div className={styles.chardCardContainer}>
 
+      {dhData && (
+        <div className={styles.chartCard}>
+          <h2 className={styles.chartTitle}>Doctors vs Hospitals</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -81,8 +97,7 @@ export default function AdminDashboard() {
                 ]}
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
+                outerRadius={110}
                 dataKey="value"
                 label
               >
@@ -96,11 +111,9 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Medicine Types Donut Chart */}
       {medTypeData && (
-        <div className="bg-white p-6 rounded shadow">
-          <h2 className="text-xl font-semibold mb-4">Medicine Type Distribution</h2>
-
+        <div className={styles.chartCard}>
+          <h2 className={styles.chartTitle}>Medicine Type Distribution</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
@@ -128,6 +141,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      </div>
     </div>
   );
 }

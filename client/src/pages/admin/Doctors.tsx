@@ -1,130 +1,268 @@
 import { useEffect, useState } from "react";
 import api from "../../lib/api/axios";
+import styles from "./Doctors.module.css";
+
+// Material UI
+import {
+  Box,
+  Card,
+  CardHeader,
+  CardContent,
+  TextField,
+  Button,
+  Typography,
+  CircularProgress,
+  Alert,
+  MenuItem,
+  Select,
+  InputLabel,
+  FormControl,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+
+import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+import PersonIcon from "@mui/icons-material/Person";
+
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import {
+  ADMIN_DOCTORS_ENDPOINT,
+  ADMIN_HOSPITALS_ENDPOINT,
+} from "../../lib/constants/apiRoute";
+import { headers } from "../../lib/util/commonFun";
+
+// ---------------------------
+// TYPES
+// ---------------------------
+interface DoctorForm {
+  name: string;
+  email: string;
+  password: string;
+  specialization: string;
+  phone: string;
+  hospital: string;
+}
+
+// ---------------------------
+// VALIDATION
+// ---------------------------
+const schema: yup.ObjectSchema<DoctorForm> = yup.object({
+  name: yup.string().required("Name is required"),
+  email: yup.string().email().required("Email is required"),
+  password: yup
+    .string()
+    .min(6, "Min 6 characters")
+    .required("Password is required"),
+  specialization: yup.string().required("Specialization is required"),
+  phone: yup
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .required("Phone is required"),
+  hospital: yup.string().required("Hospital selection is required"),
+});
 
 export default function Doctors() {
-  const [hospitals, setHospitals] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    specialization: "",
-    phone: "",
-    hospital: ""
+  const [hospitals, setHospitals] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  // React Hook Form
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<DoctorForm>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      specialization: "",
+      phone: "",
+      hospital: "",
+    },
   });
 
-  // Get hospitals + doctors
+  // Load Data
   const load = async () => {
-    const hRes = await api.get("/admin/hospitals");
-    setHospitals(hRes.data);
+    try {
+      setLoading(true);
 
-    const dRes = await api.get("/admin/doctors");
-    setDoctors(dRes.data);
+      const hRes = await api.get(ADMIN_HOSPITALS_ENDPOINT, headers);
+      setHospitals(hRes.data.data || []);
+
+      const dRes = await api.get(ADMIN_DOCTORS_ENDPOINT, headers);
+      setDoctors(dRes.data.data || []);
+    } catch (err) {
+      setError("Failed to load doctors or hospitals.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  const submit = async (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
-    await api.post("/admin/doctors", form);
-    alert("Doctor added successfully");
-    load();
+  // Submit
+  const submit = async (data: DoctorForm) => {
+    setSaving(true);
+    setError("");
+
+    try {
+      const resp = await api.post(ADMIN_DOCTORS_ENDPOINT, data, headers);
+      if (resp.status === 201 || resp.status === 200) {
+        reset();
+        load();
+      }
+    } catch (err) {
+      setError("Failed to add doctor.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Manage Doctors</h1>
+    <Box className={styles.container}>
+      {/* HEADER */}
+      <Typography variant="h4" className={styles.headerWrapper}>
+        <MedicalServicesIcon sx={{ fontSize: 38 }} />
+        Manage Doctors
+      </Typography>
 
-      {/* Doctor Form */}
-      <form
-        onSubmit={submit}
-        className="bg-white p-6 rounded shadow space-y-4 w-full max-w-2xl"
-      >
-        <div className="grid grid-cols-2 gap-4">
+      {/* ADD DOCTOR FORM */}
+      <Card className={styles.card}>
+        <CardHeader title="Add Doctor" />
+        <Divider />
 
-          <input
-            type="text"
-            placeholder="Name"
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            required
-          />
+        <CardContent>
+          {error && <Alert severity="error">{error}</Alert>}
 
-          <input
-            type="email"
-            placeholder="Email"
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
+          <form onSubmit={handleSubmit(submit)} className={styles.formGrid}>
+            <TextField
+              label="Name"
+              fullWidth
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
+            <TextField
+              label="Email"
+              fullWidth
+              {...register("email")}
+              error={!!errors.email}
+              helperText={errors.email?.message}
+            />
 
-          <input
-            type="text"
-            placeholder="Specialization"
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, specialization: e.target.value })}
-          />
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              {...register("password")}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+            />
 
-          <input
-            type="text"
-            placeholder="Phone"
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-          />
+            <TextField
+              label="Specialization"
+              fullWidth
+              {...register("specialization")}
+              error={!!errors.specialization}
+              helperText={errors.specialization?.message}
+            />
 
-          <select
-            className="border p-2 rounded"
-            onChange={(e) => setForm({ ...form, hospital: e.target.value })}
-            required
-          >
-            <option value="">Select Hospital</option>
-            {hospitals.map((h) => (
-              <option value={h._id} key={h._id}>
-                {h.name}
-              </option>
-            ))}
-          </select>
-        </div>
+            <TextField
+              label="Phone"
+              fullWidth
+              {...register("phone")}
+              error={!!errors.phone}
+              helperText={errors.phone?.message}
+            />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Add Doctor
-        </button>
-      </form>
+            <FormControl fullWidth error={!!errors.hospital}>
+              <InputLabel>Hospital</InputLabel>
+              <Select label="Hospital" defaultValue="" {...register("hospital")}>
+                {hospitals.map((h) => (
+                  <MenuItem key={h._id} value={h._id}>
+                    {h.name}
+                  </MenuItem>
+                ))}
+              </Select>
 
-      {/* Doctors List */}
-      <div className="bg-white p-6 rounded shadow">
-        <h2 className="text-xl font-semibold mb-4">Doctors List</h2>
+              <Typography className={styles.errorText}>
+                {errors.hospital?.message}
+              </Typography>
+            </FormControl>
 
-        <div className="space-y-4">
-          {doctors.map((d) => (
-            <div
-              key={d._id}
-              className="border p-4 rounded flex justify-between items-center"
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{ py: 1.4, fontWeight: 700 }}
+              disabled={saving}
             >
-              <div>
-                <div className="font-semibold text-lg">{d.user.name}</div>
-                <div className="text-sm text-gray-600">
-                  {d.specialization} — {d.phone}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Hospital: {d.hospital?.name}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+              {saving ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Add Doctor"
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
-    </div>
+      {/* DOCTORS LIST */}
+      <Card className={styles.card}>
+        <CardHeader title="Doctors List" />
+        <Divider />
+
+        <CardContent>
+          {loading ? (
+            <div className={styles.centered}>
+              <CircularProgress />
+            </div>
+          ) : doctors.length === 0 ? (
+            <Typography className={styles.mutedText}>
+              No doctors found.
+            </Typography>
+          ) : (
+            <List className={styles.doctorList}>
+              {doctors.map((d) => (
+                <ListItem key={d._id} className={styles.doctorItem}>
+                  <ListItemText
+                    primary={
+                      <Typography sx={{ fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+                        <PersonIcon color="primary" />
+                        {d.user.name}
+                      </Typography>
+                    }
+                    secondary={
+                      <div>
+                        <div>Specialization: {d.specialization}</div>
+                        <div>Phone: {d.phone}</div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                          <LocalHospitalIcon sx={{ fontSize: 18 }} />
+                          {d.hospital?.name}
+                        </div>
+                      </div>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

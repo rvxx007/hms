@@ -1,98 +1,181 @@
 import { useEffect, useState } from "react";
 import api from "../../lib/api/axios";
+import { ADMIN_HOSPITALS_ENDPOINT } from "../../lib/constants/apiRoute";
+import { headers } from "../../lib/util/commonFun";
+import type { Hospital, HospitalForm } from "../../lib/interface/commonTypes";
+
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  CircularProgress,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+
+import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
+
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import styles from "./Hospitals.module.css";
+
+const schema: yup.ObjectSchema<HospitalForm> = yup.object({
+  name: yup.string().required("Hospital name is required"),
+  address: yup.string().required("Address is required"),
+  phone: yup
+    .string()
+    .min(10, "Phone must be at least 10 digits")
+    .required("Phone number is required"),
+});
 
 export default function Hospitals() {
-  const [name, setName] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
+  const [list, setList] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  const [list, setList] = useState([]);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<HospitalForm>({
+    resolver: yupResolver(schema),
+    defaultValues: { name: "", address: "", phone: "" },
+  });
 
-  // Fetch hospitals
   const load = async () => {
-    const res = await api.get("/admin/hospitals");
-    setList(res.data);
+    try {
+      setLoading(true);
+      const res = await api.get(ADMIN_HOSPITALS_ENDPOINT, headers);console.log(res);
+      
+
+      setList(res.data.data || []);
+    } catch {
+      setError("Failed to load hospitals.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     load();
   }, []);
 
-  // Create Hospital
-  const submit = async (e: { preventDefault: () => void; }) => {
-    e.preventDefault();
-    await api.post("/admin/hospitals", {
-      name,
-      address,
-      phone,
-    });
+  const submit = async (data: HospitalForm) => {
+    setSaving(true);
+    setError("");
 
-    setName("");
-    setAddress("");
-    setPhone("");
-
-    load();
+    try {
+      await api.post(ADMIN_HOSPITALS_ENDPOINT, data, headers);
+      reset();
+      load();
+    } catch {
+      setError("Failed to add hospital.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <div className="space-y-6">
+    <Box className={styles.wrapper}>
+      <Box className={styles.headerRow}>
+        <LocalHospitalIcon className={styles.headerIcon} />
+        <Typography variant="h4" className={styles.headerText}>
+          Manage Hospitals
+        </Typography>
+      </Box>
 
-      <h1 className="text-2xl font-bold">Manage Hospitals</h1>
-
-      {/* Form */}
-      <form
-        onSubmit={submit}
-        className="bg-white p-6 rounded shadow w-full max-w-xl space-y-4"
-      >
-        <input
-          type="text"
-          placeholder="Hospital Name"
-          className="border p-2 w-full rounded"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
+      <Card className={styles.formCard}>
+        <CardHeader
+          title="Add New Hospital"
+          titleTypographyProps={{ className: styles.cardTitle }}
         />
+        <Divider />
 
-        <input
-          type="text"
-          placeholder="Address"
-          className="border p-2 w-full rounded"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+        <CardContent>
+          {error && <Alert severity="error">{error}</Alert>}
+
+          <form onSubmit={handleSubmit(submit)} className={styles.form}>
+            <TextField
+              label="Hospital Name"
+              fullWidth
+              {...register("name")}
+              error={!!errors.name}
+              helperText={errors.name?.message}
+            />
+
+            <TextField
+              label="Address"
+              fullWidth
+              {...register("address")}
+              error={!!errors.address}
+              helperText={errors.address?.message}
+            />
+
+            <TextField
+              label="Phone Number"
+              fullWidth
+              {...register("phone")}
+              error={!!errors.phone}
+              helperText={errors.phone?.message}
+            />
+
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={saving}
+              className={styles.submitBtn}
+            >
+              {saving ? <CircularProgress size={22} color="inherit" /> : "Add Hospital"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card className={styles.listCard}>
+        <CardHeader
+          title="Hospital List"
+          titleTypographyProps={{ className: styles.cardTitle }}
         />
+        <Divider />
 
-        <input
-          type="text"
-          placeholder="Phone"
-          className="border p-2 w-full rounded"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-        />
-
-        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
-          Add Hospital
-        </button>
-      </form>
-
-      {/* Hospital List */}
-      <div className="bg-white p-6 rounded shadow space-y-4">
-        <h2 className="text-xl font-semibold">Hospital List</h2>
-
-        {list.length === 0 && <p>No hospitals found</p>}
-
-        {list.map((h) => (
-          <div
-            key={h._id}
-            className="flex items-center justify-between border p-3 rounded"
-          >
-            <div>
-              <div className="font-semibold">{h?.name}</div>
-              <div className="text-sm text-gray-600">{h.address}</div>
-              <div className="text-sm text-gray-600">{h.phone}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+        <CardContent>
+          {loading ? (
+            <Box className={styles.loaderBox}>
+              <CircularProgress />
+            </Box>
+          ) : list.length === 0 ? (
+            <Typography className={styles.noData}>No hospitals found.</Typography>
+          ) : (
+            <List className={styles.hospitalList}>
+              {list && list.map((h) => (
+                <ListItem key={h._id} className={styles.hospitalItem}>
+                  <ListItemText
+                    primary={<span className={styles.hospitalName}>{h.name}</span>}
+                    secondary={
+                      <div className={styles.hospitalDetails}>
+                        <div>{h.address}</div>
+                        <div>{h.phone}</div>
+                      </div>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </CardContent>
+      </Card>
+    </Box>
   );
 }

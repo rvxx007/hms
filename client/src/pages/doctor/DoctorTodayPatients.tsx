@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, type JSX } from "react";
 import api from "../../lib/api/axios";
 
 import {
@@ -12,26 +12,24 @@ import {
   Divider,
   Button,
   Alert,
-  MenuItem,
 } from "@mui/material";
 
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PersonIcon from "@mui/icons-material/Person";
 
-import { useForm } from "react-hook-form";
+import { useForm, type SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-
-import { headers } from "../../lib/util/commonFun";
 import { DOCTOR_TODAYS_PATIENTS_ENDPOINT } from "../../lib/constants/apiRoute";
 
-import styles from "./TodayPatients.module.css";
+import styles from "./DoctorTodayPatients.module.css";
+import { headers } from "../../lib/util/commonFun";
 
 interface Patient {
   _id: string;
   name: string;
   age: number;
-  gender: string;
+  gender: "Male" | "Female" | "Other";
   phone: string;
   address: string;
   complaint: string;
@@ -42,106 +40,105 @@ interface FilterForm {
   gender?: string;
 }
 
-const schema = yup.object().shape({
+const schema: yup.ObjectSchema<FilterForm> = yup.object({
   search: yup.string().optional(),
   gender: yup.string().optional(),
 });
 
-export default function DoctorTodayPatients() {
+export default function DoctorTodayPatients(): JSX.Element {
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [allPatients, setAllPatients] = useState<Patient[]>([]);
+  const [originalPatients, setOriginalPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState("");
 
   const { register, reset, handleSubmit } = useForm<FilterForm>({
     resolver: yupResolver(schema),
+    defaultValues: { search: "", gender: "" },
   });
 
-  const loadPatients = useCallback(async () => {
+  const loadTodayPatients = useCallback(async () => {
     try {
       setLoading(true);
+
       const res = await api.get(DOCTOR_TODAYS_PATIENTS_ENDPOINT, headers);
+      
       if (res.data.success) {
         setPatients(res.data.data);
-        setAllPatients(res.data.data);
+        setOriginalPatients(res.data.data);
       }
     } catch {
-      setServerError("Failed to fetch patients");
+      setServerError("Failed to load today’s patients.");
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadPatients();
-  }, [loadPatients]);
+    loadTodayPatients();
+  }, [loadTodayPatients]);
 
-  const applyFilters = (filters: FilterForm) => {
-    let list = [...allPatients];
+  const onFilter: SubmitHandler<FilterForm> = (filters) => {
+    let filtered = [...originalPatients];
 
-    if (filters.gender) list = list.filter((p) => p.gender === filters.gender);
+    if (filters.gender)
+      filtered = filtered.filter((p) => p.gender === filters.gender);
 
     if (filters.search)
-      list = list.filter((p) =>
-        p.name.toLowerCase().includes(filters.search!.toLowerCase())
+      filtered = filtered.filter((p) =>
+        p.name.toLowerCase().includes(filters.search?.toLowerCase() || "")
       );
 
-    setPatients(list);
+    setPatients(filtered);
   };
 
   const clearFilters = () => {
     reset({ search: "", gender: "" });
-    setPatients(allPatients);
+    setPatients(originalPatients);
   };
 
   return (
     <Box className={styles.wrapper}>
-      <Typography variant="h4" className={styles.pageTitle}>
+      <Box className={styles.pageTitle}>
         <CalendarMonthIcon className={styles.pageIcon} />
-        Today’s Patients
-      </Typography>
+        <Typography variant="h4">Today's Patients</Typography>
+      </Box>
 
       <Card className={styles.filterCard}>
         <CardHeader title="Filters" className={styles.filterHeader} />
         <Divider />
 
         <CardContent>
-          <form onSubmit={handleSubmit(applyFilters)}>
-            <div className={styles.filterRow}>
-              <div className={styles.filterColumn}>
+          <form onSubmit={handleSubmit(onFilter)}>
+            <Box className={styles.filterRow}>
+              <Box className={styles.filterColumn}>
                 <label className={styles.label}>Gender</label>
-                <TextField select {...register("gender")} fullWidth size="small">
-                  <MenuItem value="">All</MenuItem>
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Female">Female</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
-                </TextField>
-              </div>
+                <select {...register("gender")} className={styles.select}>
+                  <option value="">All</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </Box>
 
-              <div className={styles.filterColumn}>
-                <TextField
-                  label="Search Patient"
-                  fullWidth
-                  size="small"
-                  {...register("search")}
-                />
-              </div>
-            </div>
+              <Box className={styles.filterColumn}>
+                <TextField fullWidth label="Search patient" {...register("search")} />
+              </Box>
+            </Box>
 
-            <div className={styles.buttonRow}>
-              <Button variant="contained" type="submit" className={styles.applyBtn}>
+            <Box className={styles.buttonRow}>
+              <Button type="submit" variant="contained" className={styles.applyBtn}>
                 Apply Filters
               </Button>
 
               <Button
+                type="button"
                 variant="outlined"
-                color="secondary"
-                onClick={clearFilters}
                 className={styles.clearBtn}
+                onClick={clearFilters}
               >
                 Clear Filters
               </Button>
-            </div>
+            </Box>
           </form>
         </CardContent>
       </Card>
@@ -154,18 +151,21 @@ export default function DoctorTodayPatients() {
           {serverError && <Alert severity="error">{serverError}</Alert>}
 
           {loading ? (
-            <div className={styles.loaderBox}>
+            <Box className={styles.loaderBox}>
               <CircularProgress />
-            </div>
+            </Box>
           ) : patients.length === 0 ? (
-            <Typography className={styles.noData}>No patients today.</Typography>
+            <Typography className={styles.noData}>No patients for today</Typography>
           ) : (
-            <div className={styles.patientList}>
+            <Box className={styles.patientList}>
               {patients.map((p) => (
                 <Card key={p._id} className={styles.patientCard}>
-                  <Typography variant="h6" className={styles.patientName}>
-                    {p.name} — Age {p.age}, {p.gender}
-                  </Typography>
+                  <Box className={styles.patientHeader}>
+                    <Typography variant="h6" className={styles.patientName}>
+                      {p.name} — Age {p.age}, {p.gender}
+                    </Typography>
+                    <PersonIcon className={styles.personIcon} />
+                  </Box>
 
                   <Typography className={styles.detailText}>
                     <strong>Complaint:</strong> {p.complaint}
@@ -180,7 +180,7 @@ export default function DoctorTodayPatients() {
                   </Typography>
                 </Card>
               ))}
-            </div>
+            </Box>
           )}
         </CardContent>
       </Card>
