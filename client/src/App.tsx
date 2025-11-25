@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+// import ProtectedRoute from "./auth/ProtectedRoute"
 
-function App() {
-  const [count, setCount] = useState(0)
+// import { Navigate } from "react-router-dom";
+// import AdminLayout from "./layouts/AdminLayout";
+// import DoctorLayout from "./layouts/DoctorLayout";
+// import Login from "./pages/Login";
+import WelcomeScreen from "./componenets/WelcomeScreen/WelcomeScreen";
+import Login from "./pages/Login";
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+// export function ProtectedRoute({ children, role }) {
+//   const token = localStorage.getItem("token");
+//   const userRole = localStorage.getItem("role");
+
+//   if (!token) return <Navigate to="/login" />;
+
+//   if (role && userRole !== role) return <Navigate to="/login" />;
+
+//   return children;
+// }
+
+const router = createBrowserRouter([
+   { path: "/", element: <WelcomeScreen /> },
+  { path: "/login", element: <Login /> },
+
+  // {
+  //   path: "/admin",
+  //   element: (
+  //     <ProtectedRoute role="admin">
+  //       <AdminLayout />
+  //     </ProtectedRoute>
+  //   ),
+  //   children: [
+  //     { path: "", element: <AdminDashboard /> },
+  //     // Add all admin pages
+  //   ],
+  // },
+
+  // {
+  //   path: "/doctor",
+  //   element: (
+  //     <ProtectedRoute role="doctor">
+  //       <DoctorLayout />
+  //     </ProtectedRoute>
+  //   ),
+  //   children: [
+  //     { path: "", element: <DoctorDashboard /> },
+  //     // Add all doctor pages
+  //   ],
+  // },
+]);
+
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App
