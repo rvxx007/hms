@@ -99,7 +99,7 @@ export default function Doctors() {
 
       const hRes = await api.get(ADMIN_HOSPITALS_ENDPOINT, headers);
       setHospitals(hRes.data.data || []);
-
+      
       const dRes = await api.get(ADMIN_DOCTORS_ENDPOINT, headers);
       setDoctors(dRes.data.data || []);
     } catch (err) {
@@ -231,13 +231,13 @@ export default function Doctors() {
             <div className={styles.centered}>
               <CircularProgress />
             </div>
-          ) : doctors.length === 0 ? (
+          ) : doctors && doctors.length === 0 ? (
             <Typography className={styles.mutedText}>
               No doctors found.
             </Typography>
           ) : (
             <List className={styles.doctorList}>
-              {doctors.map((d) => (
+              {doctors && doctors?.map((d) => (
                 <ListItem key={d._id} className={styles.doctorItem}>
                   <ListItemText
                     primary={
