@@ -111,7 +111,7 @@ export const getDoctors = async (req, res) => {
       res,
       200,
       "doctors record fetched successfully",
-      { doctor }
+       doctor 
     );
   } catch (err) {
     return send4xxClientErrorResponse(

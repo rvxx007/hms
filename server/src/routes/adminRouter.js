@@ -8,9 +8,11 @@ import {
   getPatients,
   getPatientsWeek,
   postDoctors,
+  getDoctors,
   postHospitals,
   postMedicines,
   postPatients,
+  getMedicines
 } from "../controllers/adminController.js";
 
 const adminRouter = express.Router();
@@ -22,8 +24,10 @@ adminRouter.post("/hospitals", admin, postHospitals);
 adminRouter.get("/hospitals", admin, getHospitals);
 
 adminRouter.post("/doctors", admin, postDoctors);
+adminRouter.get("/doctors", admin, getDoctors);
 
 adminRouter.post("/medicines", admin, postMedicines);
+adminRouter.get("/medicines", admin, getMedicines);
 
 
 adminRouter.post("/patients", admin, postPatients);
