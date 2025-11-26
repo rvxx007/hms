@@ -1,6 +1,5 @@
 import type { JSX } from "react";
 import { Button, Card, CardContent, Typography, Box } from "@mui/material";
-import styles from "./welcomepage.module.css";
 
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";

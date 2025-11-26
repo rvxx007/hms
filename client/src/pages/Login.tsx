@@ -35,14 +35,6 @@ interface LoginForm {
   password: string;
 }
 
-interface LoginResponse {
-  role: "admin" | "doctor";
-  token: string;
-  userId: string;
-}
-
-
-
 // ----------------------
 // VALIDATION SCHEMA
 // ----------------------

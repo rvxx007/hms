@@ -23,7 +23,6 @@ import PersonAddAltIcon from "@mui/icons-material/PersonAddAlt";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-import AdminDashboard from "../pages/admin/AdminDashboard";
 import styles from "./AdminLayout.module.css";
 
 export default function AdminLayout() {
