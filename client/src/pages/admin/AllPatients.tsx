@@ -16,14 +16,13 @@ import {
 } from "@mui/material";
 
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import PersonIcon from "@mui/icons-material/Person";
 
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { headers } from "../../lib/util/commonFun";
-import { DOCTOR_TODAYS_PATIENTS_ENDPOINT } from "../../lib/constants/apiRoute";
+import { ADMIN_PATIENTS_ENDPOINT } from "../../lib/constants/apiRoute";
 
 import styles from "./TodayPatients.module.css";
 
@@ -38,13 +37,13 @@ interface Patient {
 }
 
 interface FilterForm {
-  search?: string;
-  gender?: string;
+  search: string;
+  gender: string;
 }
 
 const schema = yup.object().shape({
-  search: yup.string().optional(),
-  gender: yup.string().optional(),
+  search: yup.string().optional().default(""),
+  gender: yup.string().optional().default(""),
 });
 
 export default function DoctorTodayPatients() {
@@ -60,7 +59,8 @@ export default function DoctorTodayPatients() {
   const loadPatients = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get(DOCTOR_TODAYS_PATIENTS_ENDPOINT, headers);
+      const res = await api.get(ADMIN_PATIENTS_ENDPOINT, headers);
+      
       if (res.data.success) {
         setPatients(res.data.data);
         setAllPatients(res.data.data);
