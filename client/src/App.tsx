@@ -38,7 +38,9 @@ export function ProtectedRoute({
   const userRole = localStorage.getItem("role") as Role | null;
 
   if (!token) return <Navigate to="/login" replace />;
-  if (role && userRole !== role) return <Navigate to="/login" replace />;
+  if (role && userRole !== role){ 
+    Cookies.remove("token");
+    return <Navigate to="/login" replace />};
 
   return children;
 }
@@ -51,6 +53,7 @@ function PublicRoute({ children }: { children: JSX.Element }) {
 
   if (token) {
     const storedRole = localStorage.getItem("role");
+    if(!storedRole) return;
     return <Navigate to={storedRole === "admin" ? "/admin" : "/doctor"} replace />;
   }
 
