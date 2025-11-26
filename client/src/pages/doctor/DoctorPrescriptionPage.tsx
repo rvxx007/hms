@@ -13,15 +13,13 @@ import {
   Divider,
   Button,
   Alert,
-  IconButton,
 } from "@mui/material";
 
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import PersonIcon from "@mui/icons-material/Person";
-import HealingIcon from "@mui/icons-material/Healing";
 
-// RHF + Yup
-import { useForm, type SubmitHandler } from "react-hook-form";
+
+import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -70,15 +68,13 @@ export default function DoctorTodayPatients(): JSX.Element {
   const [serverError, setServerError] = useState("");
 
   // RHF
-  const { register, reset, handleSubmit, watch } = useForm<FilterForm>({
+  const { register, reset, handleSubmit } = useForm<FilterForm>({
     resolver: yupResolver(schema),
     defaultValues: {
       search: "",
       gender: "",
     },
   });
-
-  const selectedGender = watch("gender");
 
   // ----------------------------------------------------
   // Load today's patients
