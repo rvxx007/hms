@@ -20,6 +20,31 @@ hms/ (Root)
     └── node_modules/      <-- Contains symlinks pointing to root
 ```
 
+# install pnpm first then 
+
+# you can start both client and server parallel
+
+hms(root directory)
+    // run this command, 
+    pnpm run dev
+
+# or you can start individually 
+**For Frontend**
+```
+hms(root directory)
+    client
+        // run this cmd
+        pnpm run dev
+```
+
+**For Backend**
+```
+hms(root directory)
+    server
+        // run this cmd
+        pnpm run dev
+```
+
 # Before starting the project run seeders using this command 
 ## At Root directory hms
 
